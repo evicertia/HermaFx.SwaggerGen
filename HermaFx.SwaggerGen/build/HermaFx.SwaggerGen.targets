@@ -1,0 +1,35 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <ItemGroup Condition=" '$(GenerateSwaggerClients)' == 'true' ">
+        <Compile Include="**\*.swagger.cs">
+            <AutoGen>True</AutoGen>
+            <SubType>Code</SubType>
+        </Compile>
+    </ItemGroup>
+
+    <PropertyGroup>
+        <GenerateSwaggerClients Condition=" '$(GenerateSwaggerClients)' == '' ">true</GenerateSwaggerClients>
+        <CompileDependsOn Condition=" '$(GenerateSwaggerClients)' == 'true' ">
+            GenerateSwaggerClients;
+            $(CompileDependsOn);
+        </CompileDependsOn>
+    </PropertyGroup>
+
+    <Target Name="_ResolveSwaggerFiles">
+        <ItemGroup>
+            <SwaggerSrcFiles Condition=" '@(SwaggerSrcFiles)' == '' and $([System.String]::Copy(%(Identity)).EndsWith('.swagger.json'))"
+                Include="@(Content);@(None)" />
+            <SwaggerOutputFiles Condition=" '@(SwaggerSrcFiles)' != '' "
+                Include="@(SwaggerSrcFiles -> '$([System.String]::Copy(%(SwaggerSrcFiles.Identity)).Replace('.swagger.json', '')).swagger.cs')" />
+        </ItemGroup>
+        <Message Importance="High" Text="Resolving changed swagger files with extension .swagger.json" />
+        <Error Condition=" '$(NSwagExe)' == '' " Text="NSwag.MSBuild is not installed" />
+    </Target>
+
+    <Target Name="GenerateSwaggerClients" BeforeTargets="BeforeBuild"
+                    DependsOnTargets="_ResolveSwaggerFiles"
+                    Inputs="@(SwaggerSrcFiles)"
+                    Outputs="@(SwaggerOutputFiles)">
+        <Exec Command="call $(MSBuildThisFileDirectory)/swagger-gen.bat $(NSwagExe) %(SwaggerSrcFiles.Identity) $(RootNamespace)" Condition=" '$(OS)' != 'Unix' "/>
+        <Exec Command="call $(MSBuildThisFileDirectory)/swagger-gen.sh $(NSwagExe) %(SwaggerSrcFiles.Identity) $(RootNamespace)" Condition=" '$(OS)' == 'Unix' "/>
+    </Target>
+</Project>

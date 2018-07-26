@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Authors>Evidencias Certificadas, S.L.</Authors>
+    <Description>Swagger client generation</Description>
+    <PackageId>HermaFx.SwaggerGen</PackageId>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+    <PackageNoAssemblies>true</PackageNoAssemblies>
+    <TargetFrameworks>netstandard1.6;net45</TargetFrameworks>
+    <!-- makes this sample work when compiling on macOS and Linux because .NET Framework is not available -->
+    <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netstandard1.6</TargetFrameworks>
+    <PackageOutputPath>$(MSBuildThisFileDirectory)..\artifacts\</PackageOutputPath>
+    <!-- Suppresses the warnings about the package not having assemblies in lib/*/.dll.-->
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <!-- set the version automatically -->
+    <APPVEYOR_BUILD_NUMBER Condition="'$(APPVEYOR_BUILD_NUMBER)' == ''">1</APPVEYOR_BUILD_NUMBER>
+    <VersionPrefix>1.0.$(APPVEYOR_BUILD_NUMBER)</VersionPrefix>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="build\*" PackagePath="build\" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="NSwag.MSBuild" Version="11.17.21" />
+  </ItemGroup>
+</Project>
