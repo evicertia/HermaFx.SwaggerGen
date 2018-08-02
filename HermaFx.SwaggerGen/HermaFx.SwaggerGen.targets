@@ -14,21 +14,35 @@
         </CompileDependsOn>
     </PropertyGroup>
 
-    <Target Name="_ResolveSwaggerFiles">
+    <Target Name="_ResolveSwaggerConfigFiles">
         <ItemGroup>
+            <SwaggerConfigFiles Condition=" '@(SwaggerConfigFiles)' == '' and $([System.String]::Copy(%(Identity)).EndsWith('.swagger.config'))"
+                Include="@(Content);@(None)" />
             <SwaggerSrcFiles Condition=" '@(SwaggerSrcFiles)' == '' and $([System.String]::Copy(%(Identity)).EndsWith('.swagger.json'))"
                 Include="@(Content);@(None)" />
+        </ItemGroup>
+        <Message Importance="High" Text="Resolving config files with extension .swagger.config and swagger files with extension .swagger.json" />
+    </Target>
+
+    <Target Name="_TouchSwaggerConfigFiles" DependsOnTargets="_ResolveSwaggerConfigFiles"
+                    Inputs="@(SwaggerConfigFiles)"
+                    Outputs="@(SwaggerSrcFiles)">
+        <Message Importance="High" Text="Touching swagger files to force build" />
+        <Touch Files="@(SwaggerSrcFiles)" />
+    </Target>
+
+    <Target Name="_ResolveSwaggerFiles" DependsOnTargets="_TouchSwaggerConfigFiles" >
+        <ItemGroup>
             <SwaggerOutputFiles Condition=" '@(SwaggerSrcFiles)' != '' "
                 Include="@(SwaggerSrcFiles -> '$([System.String]::Copy(%(SwaggerSrcFiles.Identity)).Replace('.swagger.json', '')).swagger.cs')" />
         </ItemGroup>
-        <Message Importance="High" Text="Resolving changed swagger files with extension .swagger.json" />
-        <Error Condition=" '$(NSwagExe)' == '' " Text="NSwag.MSBuild is not installed" />
     </Target>
 
     <Target Name="GenerateSwaggerClients" BeforeTargets="BeforeBuild"
                     DependsOnTargets="_ResolveSwaggerFiles"
                     Inputs="@(SwaggerSrcFiles)"
                     Outputs="@(SwaggerOutputFiles)">
+        <Error Condition=" '$(NSwagExe)' == '' " Text="NSwag.MSBuild is not installed" />
         <Exec Command="call $(MSBuildThisFileDirectory)/swagger-gen.bat $(NSwagExe) %(SwaggerSrcFiles.Identity) $(RootNamespace)" Condition=" '$(OS)' != 'Unix' "/>
         <Exec Command="call $(MSBuildThisFileDirectory)/swagger-gen.sh $(NSwagExe) %(SwaggerSrcFiles.Identity) $(RootNamespace)" Condition=" '$(OS)' == 'Unix' "/>
     </Target>

@@ -19,7 +19,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="build\*" PackagePath="build\" />
+    <Content Include="*" PackagePath="build\" />
   </ItemGroup>
   
   <ItemGroup>
