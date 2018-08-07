@@ -33,7 +33,7 @@ IF EXIST %OutDir%%ClientName%.swagger.config (
 IF EXIST %OutDir%%ClientName%.swagger.cs (
     del %OutDir%%ClientName%.swagger.cs
 )
-%1 swagger2csclient /input:%2 /classname:%CLASSNAME% /namespace:%NAMESPACE% /output:%OutDir%%ClientName%.swagger.cs /GenerateSyncMethods:%GENERATESYNC% /InjectHttpClient:%INJECTHTTPCLIENT% /ClassStyle:%CLASSSTYLE%
+%1 swagger2csclient /input:%2 /classname:%CLASSNAME% /namespace:%NAMESPACE% /output:%OutDir%%ClientName%.swagger.cs /GenerateSyncMethods:%GENERATESYNC% /InjectHttpClient:%INJECTHTTPCLIENT% /ClassStyle:%CLASSSTYLE% /ExceptionClass:%CLASSNAME%Exception
 
 :setvar
 echo Setting %~1 to %~2

@@ -26,4 +26,4 @@ fi
 if [ -e $outdir\\$clientname.swagger.cs ]; then
     rm $outdir\\$clientname.swagger.cs
 fi
-mono $1 swagger2csclient /input:$2 /classname:$clientname /namespace:$3.$clientname /output:$outdir\\$clientname.swagger.cs /GenerateSyncMethods:$GENERATESYNC /InjectHttpClient:$INJECTHTTPCLIENT /ClassStyle:$CLASSSTYLE
+mono $1 swagger2csclient /input:$2 /classname:$clientname /namespace:$3.$clientname /output:$outdir\\$clientname.swagger.cs /GenerateSyncMethods:$GENERATESYNC /InjectHttpClient:$INJECTHTTPCLIENT /ClassStyle:$CLASSSTYLE /ExceptionClass:"$clientname"Exception
